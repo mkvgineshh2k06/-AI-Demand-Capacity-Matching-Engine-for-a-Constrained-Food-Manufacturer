@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Sidebar, ScreenId } from './components/layout/Sidebar';
 import { Topbar } from './components/layout/Topbar';
+import { FinancialTicker } from './components/layout/FinancialTicker';
 import { Overview } from './pages/Overview';
 import { Forecast } from './pages/Forecast';
 import { Allocation } from './pages/Allocation';
@@ -75,7 +76,6 @@ export const App: React.FC = () => {
     const reactiveSegments = rawSegments.map((s) => {
       const dem = Math.round(s.baseDemand * periodFigures.mult);
       const fillRate = s.channel === 'B2B' ? stratMultiplier.b2bFill : stratMultiplier.d2cFill;
-      // Modulate allocation by capacity ratio
       const capFactor = riskMeta.capacity / 3950;
       const alloc = Math.min(dem, Math.round(dem * fillRate * capFactor));
       const unful = Math.max(0, dem - alloc);
@@ -106,7 +106,6 @@ export const App: React.FC = () => {
     const d2cDem = reactiveSegments.filter(s => s.channel === 'D2C').reduce((a, b) => a + b.demand_kg, 0);
     const d2cAlloc = reactiveSegments.filter(s => s.channel === 'D2C').reduce((a, b) => a + b.allocated_kg, 0);
 
-    // Dynamic recommendations reacting to active strategy, risk mode, and period horizon
     const dynamicRecs: RecommendationAction[] = [];
     if (strat === 'revenue') {
       dynamicRecs.push({
@@ -263,8 +262,6 @@ export const App: React.FC = () => {
     };
   };
 
-
-  // Load operational plan from backend (falls back to reactive demo)
   const loadPlan = async (
     period = targetPeriod,
     strat = strategy,
@@ -273,7 +270,6 @@ export const App: React.FC = () => {
   ) => {
     setIsLoading(true);
     try {
-      // Try direct backend endpoint — bypass proxy to avoid IPv6/localhost resolution issues
       const DIRECT_API = 'http://127.0.0.1:8000';
       let healthy = false;
       try {
@@ -318,7 +314,6 @@ export const App: React.FC = () => {
     loadPlan();
   }, [targetPeriod, strategy, riskMode]);
 
-  // --- Standalone health polling: checks every 5s regardless of plan state ---
   const checkBackendHealth = useCallback(async () => {
     const candidates = [
       'http://127.0.0.1:8000/health',
@@ -335,15 +330,13 @@ export const App: React.FC = () => {
             return;
           }
         }
-      } catch {
-        // try next
-      }
+      } catch {}
     }
     setIsBackendConnected(false);
   }, []);
 
   useEffect(() => {
-    checkBackendHealth(); // immediate on mount
+    checkBackendHealth();
     const interval = setInterval(checkBackendHealth, 5000);
     return () => clearInterval(interval);
   }, [checkBackendHealth]);
@@ -382,9 +375,8 @@ export const App: React.FC = () => {
     setActiveScenario(null);
   };
 
-
   return (
-    <div className="flex h-screen bg-slate-50 text-slate-900 overflow-hidden font-sans">
+    <div className="flex h-screen bg-[#F7F7F2] text-[#111111] overflow-hidden font-sans">
       {/* Navigation Sidebar */}
       <Sidebar
         currentScreen={currentScreen}
@@ -395,6 +387,9 @@ export const App: React.FC = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        {/* Top Financial Marquee / Ticker */}
+        <FinancialTicker />
+
         {/* Top Control Bar */}
         <Topbar
           targetPeriod={targetPeriod}
@@ -408,8 +403,17 @@ export const App: React.FC = () => {
           onLoadDemoData={handleLoadDemoData}
         />
 
-        {/* Dynamic Screen View */}
-        <main className="flex-1 overflow-y-auto p-6">
+        {/* Dynamic Screen View with Center Dashboard Lab Background */}
+        <main
+          className="flex-1 overflow-y-auto p-6 transition-all duration-300"
+          style={{
+            backgroundImage: `linear-gradient(rgba(247, 247, 242, 0.78), rgba(247, 247, 242, 0.86)), url('/assets/biokraft-lab-bg.jpg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center center',
+            backgroundRepeat: 'no-repeat',
+            backgroundAttachment: 'fixed',
+          }}
+        >
           {isLoading ? (
             <div className="space-y-6">
               <Skeleton className="h-16 w-full" />
@@ -464,3 +468,4 @@ export const App: React.FC = () => {
 };
 
 export default App;
+

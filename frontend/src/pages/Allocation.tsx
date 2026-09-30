@@ -1,14 +1,9 @@
 import React from 'react';
-import { Layers, Sliders, CheckCircle2, AlertTriangle, Shield, HelpCircle, ArrowRight } from 'lucide-react';
-import { OperationalPlan, OptimizationStrategy, SegmentAllocation } from '../api/types';
+import { Layers, Sliders, CheckCircle2, AlertTriangle, Shield, HelpCircle } from 'lucide-react';
+import { OperationalPlan, OptimizationStrategy } from '../api/types';
 import { Card } from '../components/ui/Card';
 import { StatCard } from '../components/ui/StatCard';
 import { Badge } from '../components/ui/Badge';
-import { Button } from '../components/ui/Button';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  Legend, Cell
-} from 'recharts';
 
 interface AllocationProps {
   plan: OperationalPlan;
@@ -25,43 +20,47 @@ export const Allocation: React.FC<AllocationProps> = ({
   const segments = allocation_plan.segments || [];
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Strategy Switcher Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Layers className="w-5 h-5 text-teal-700" />
-            Constrained Capacity Allocation
-          </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Linear Programming optimization solver (Google OR-Tools GLOP) allocating available capacity
-          </p>
-        </div>
+    <div className="space-y-8 pb-12 font-sans max-w-7xl mx-auto">
+      {/* Editorial Header & Policy Switcher */}
+      <div className="bg-white border border-[#DEDED8] rounded-[2px] p-8 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-2">
+            <div className="text-[11px] font-bold tracking-widest text-[#64645F] uppercase font-mono">
+              02 / ALLOCATION OPTIMIZER
+            </div>
+            <h1 className="text-3xl lg:text-4xl font-bold text-[#111111] tracking-tight">
+              Capacity allocated by priority.
+            </h1>
+            <p className="text-sm text-[#64645F] max-w-xl">
+              Linear Programming optimization solver (Google OR-Tools GLOP) partitioning available production capacity across demand channels.
+            </p>
+          </div>
 
-        {/* Strategy Selector Pills */}
-        <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200">
-          <Sliders className="w-3.5 h-3.5 text-slate-500 ml-2" />
-          <span className="text-xs text-slate-500 font-medium mr-1">Policy:</span>
-          {(
-            [
-              { id: 'balanced', label: 'Balanced Policy' },
-              { id: 'revenue', label: 'Max Revenue' },
-              { id: 'fulfillment', label: 'Max Fulfillment' },
-            ] as const
-          ).map((item) => (
-            <button
-              key={item.id}
-              disabled={isUpdatingStrategy}
-              onClick={() => onSelectStrategy(item.id)}
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
-                plan.strategy === item.id
-                  ? 'bg-teal-700 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
+          {/* Minimal Strategy Switcher */}
+          <div className="flex items-center gap-2 bg-[#F7F7F2] p-2 border border-[#DEDED8] rounded-[2px] shrink-0">
+            <Sliders className="w-3.5 h-3.5 text-[#64645F]" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#64645F] mr-1">Policy:</span>
+            {(
+              [
+                { id: 'balanced', label: 'Balanced' },
+                { id: 'revenue', label: 'Max Revenue' },
+                { id: 'fulfillment', label: 'Max Fulfillment' },
+              ] as const
+            ).map((item) => (
+              <button
+                key={item.id}
+                disabled={isUpdatingStrategy}
+                onClick={() => onSelectStrategy(item.id)}
+                className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-[2px] transition-all cursor-pointer ${
+                  plan.strategy === item.id
+                    ? 'bg-[#324C3A] text-white'
+                    : 'text-[#64645F] hover:text-[#111111] hover:bg-[#DEDED8]/40'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -71,8 +70,7 @@ export const Allocation: React.FC<AllocationProps> = ({
           title="Available Capacity"
           value={allocation_plan.available_capacity_kg}
           unit="kg"
-          subtitle="Solver Constraint"
-          icon={<Layers className="w-4 h-4 text-teal-700" />}
+          subtitle="Solver Hard Constraint"
         />
         <StatCard
           title="Total Demand"
@@ -92,55 +90,55 @@ export const Allocation: React.FC<AllocationProps> = ({
           title="Unfulfilled Shortage"
           value={allocation_plan.unfulfilled_demand_kg}
           unit="kg"
-          subtitle="Capacity Shortfall"
+          subtitle="Production Deficit"
           badgeText={allocation_plan.unfulfilled_demand_kg > 0 ? 'Shortage' : 'Satisfied'}
           badgeVariant={allocation_plan.unfulfilled_demand_kg > 0 ? 'danger' : 'success'}
         />
         <StatCard
           title="B2B SLA Fulfillment"
           value={`${allocation_plan.b2b_fulfillment_pct.toFixed(1)}%`}
-          subtitle="Contract Protection"
-          badgeText="Priority SLA"
+          subtitle="Contractual Commitment"
+          badgeText="Protected"
           badgeVariant="teal"
         />
         <StatCard
           title="D2C Fulfillment"
           value={`${allocation_plan.d2c_fulfillment_pct.toFixed(1)}%`}
           subtitle="Consumer Retail"
-          badgeText="Retail Supply"
+          badgeText="Retail"
           badgeVariant="info"
         />
       </div>
 
-      {/* Visual Segment Fulfillment Bars */}
+      {/* Visual Segment Allocation Progress */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card
-          title="Demand vs Allocated Capacity by Segment"
+          title="Segment-Level Capacity Allocation"
           subtitle="Individual channel allocation breakdown generated by OR-Tools LP Optimizer"
           className="lg:col-span-2"
         >
-          <div className="space-y-4 pt-2">
+          <div className="space-y-4 pt-2 font-sans">
             {segments.map((seg) => {
               const ful = seg.fulfillment_pct;
               const isFull = ful >= 99.9;
               const isLow = ful < 60;
 
               return (
-                <div key={seg.segment_id} className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-lg space-y-2">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
+                <div key={seg.segment_id} className="p-4 bg-[#F7F7F2] border border-[#DEDED8] rounded-[2px] space-y-2.5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900 font-mono">{seg.segment_id}</span>
-                      <span className="text-slate-600 font-medium">({seg.region} — {seg.channel})</span>
+                      <span className="font-mono font-bold text-[#111111]">{seg.segment_id}</span>
+                      <span className="text-[#64645F] font-medium">({seg.region} — {seg.channel})</span>
                       <Badge variant={seg.channel === 'B2B' ? 'teal' : 'info'} size="sm">
                         {seg.channel}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-slate-600">
-                        Demand: <strong className="text-slate-900">{(seg.demand_kg ?? seg.forecast_demand_kg ?? 0).toLocaleString()} kg</strong>
+                      <span className="text-[#64645F] text-[11px]">
+                        Demand: <strong className="text-[#111111] font-mono">{(seg.demand_kg ?? seg.forecast_demand_kg ?? 0).toLocaleString()} kg</strong>
                       </span>
-                      <span className="text-slate-600">
-                        Allocated: <strong className="text-teal-700">{(seg.allocated_kg ?? 0).toLocaleString()} kg</strong>
+                      <span className="text-[#64645F] text-[11px]">
+                        Allocated: <strong className="text-[#324C3A] font-mono">{(seg.allocated_kg ?? 0).toLocaleString()} kg</strong>
                       </span>
                       <Badge variant={isFull ? 'success' : isLow ? 'danger' : 'warning'} size="sm">
                         {ful.toFixed(1)}% Fulfilled
@@ -148,19 +146,19 @@ export const Allocation: React.FC<AllocationProps> = ({
                     </div>
                   </div>
 
-                  {/* Progress Bar */}
-                  <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden flex">
+                  {/* Progress Meter */}
+                  <div className="w-full bg-[#DEDED8] h-2 rounded-[2px] overflow-hidden flex">
                     <div
-                      className={`h-full transition-all duration-500 rounded-full ${
-                        isFull ? 'bg-emerald-500' : isLow ? 'bg-rose-500' : 'bg-teal-600'
+                      className={`h-full transition-all duration-500 rounded-[2px] ${
+                        isFull ? 'bg-[#324C3A]' : isLow ? 'bg-[#9E3B3B]' : 'bg-[#718B6B]'
                       }`}
                       style={{ width: `${Math.min(ful, 100)}%` }}
                     />
                   </div>
 
-                  {/* Unfulfilled gap subtext */}
+                  {/* Unfulfilled gap warning */}
                   {seg.unfulfilled_kg > 0 && (
-                    <div className="text-[11px] text-rose-600 font-medium flex items-center gap-1">
+                    <div className="text-[11px] text-[#9E3B3B] font-mono font-semibold flex items-center gap-1">
                       <AlertTriangle className="w-3 h-3" /> Unfulfilled Deficit: {seg.unfulfilled_kg.toLocaleString()} kg
                       (₹{((seg.revenue_inr / seg.allocated_kg) * seg.unfulfilled_kg || 0).toLocaleString('en-IN')} unrealized revenue)
                     </div>
@@ -171,39 +169,39 @@ export const Allocation: React.FC<AllocationProps> = ({
           </div>
         </Card>
 
-        {/* Deterministic Optimizer Explanations */}
+        {/* Solver Logic Explanation */}
         <Card
-          title="Why This Allocation?"
-          subtitle="Deterministic linear programming explanations from optimizer solver constraints"
+          title="Optimization Rationale"
+          subtitle="Deterministic linear programming solver logic explanations"
         >
-          <div className="space-y-4">
-            <div className="p-3.5 bg-teal-900 text-white rounded-lg space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-teal-200">
-                <Shield className="w-4 h-4 text-teal-300" /> Current Policy: {allocation_plan.strategy.toUpperCase()}
+          <div className="space-y-4 font-sans">
+            <div className="p-4 bg-[#324C3A] text-white rounded-[2px] space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-white/90 font-mono">
+                <Shield className="w-4 h-4 text-white" /> Active Policy: {allocation_plan.strategy.toUpperCase()}
               </div>
-              <p className="text-xs text-teal-100/90 leading-relaxed">
-                Available capacity ({allocation_plan.available_capacity_kg.toLocaleString()} kg) is constrained. Shortfall slack variables penalize B2B contractual breaches at 10x standard penalty weight.
+              <p className="text-xs text-white/80 leading-relaxed">
+                Available capacity ({allocation_plan.available_capacity_kg.toLocaleString()} kg) is constrained. Penalty parameters enforce B2B contractual SLAs at 10x penalty weight relative to unfulfilled D2C retail demand.
               </p>
             </div>
 
             <div className="space-y-3 pt-1">
-              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider text-slate-500">
+              <h4 className="text-xs font-bold text-[#111111] uppercase tracking-wider">
                 Solver Logic Rationale
               </h4>
               {(allocation_plan.explanations || []).map((exp, idx) => (
-                <div key={idx} className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg flex items-start gap-2.5 text-xs text-slate-700 leading-relaxed">
-                  <CheckCircle2 className="w-4 h-4 text-teal-700 shrink-0 mt-0.5" />
+                <div key={idx} className="p-3 bg-[#F7F7F2] border border-[#DEDED8] rounded-[2px] flex items-start gap-2.5 text-xs text-[#111111] leading-relaxed">
+                  <CheckCircle2 className="w-4 h-4 text-[#324C3A] shrink-0 mt-0.5" />
                   <div>{exp}</div>
                 </div>
               ))}
             </div>
 
-            <div className="p-3 bg-slate-100 border border-slate-200 rounded-lg text-xs space-y-1">
-              <span className="font-semibold text-slate-800 flex items-center gap-1">
-                <HelpCircle className="w-3.5 h-3.5 text-slate-500" /> Shortage Slack Variable Protection
+            <div className="p-3 bg-[#F7F7F2] border border-[#DEDED8] rounded-[2px] text-xs space-y-1">
+              <span className="font-bold text-[#111111] flex items-center gap-1 uppercase text-[10px] tracking-wider">
+                <HelpCircle className="w-3.5 h-3.5 text-[#64645F]" /> Shortage Slack Variable Formulation
               </span>
-              <p className="text-slate-600 text-[11px] leading-relaxed">
-                The OR-Tools LP formulation prevents model infeasibility when commitments exceed available capacity by utilizing slack variables: <code>allocation_i + shortfall_i &gt;= minimum_commitment_i</code>.
+              <p className="text-[#64645F] text-[11px] leading-relaxed">
+                The Google OR-Tools LP formulation guarantees solver convergence when commitments exceed usable capacity by evaluating continuous slack variables: <code>allocation_i + shortfall_i &gt;= min_contract_i</code>.
               </p>
             </div>
           </div>
@@ -212,3 +210,4 @@ export const Allocation: React.FC<AllocationProps> = ({
     </div>
   );
 };
+

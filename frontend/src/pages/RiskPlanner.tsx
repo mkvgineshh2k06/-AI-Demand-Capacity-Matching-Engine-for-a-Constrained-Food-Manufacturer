@@ -1,8 +1,7 @@
 import React from 'react';
-import { ShieldAlert, Shield, ShieldCheck, Zap, AlertTriangle, Info, TrendingUp } from 'lucide-react';
+import { ShieldAlert, Shield, ShieldCheck, Zap } from 'lucide-react';
 import { OperationalPlan, RiskMode } from '../api/types';
 import { Card } from '../components/ui/Card';
-import { StatCard } from '../components/ui/StatCard';
 import { Badge } from '../components/ui/Badge';
 
 interface RiskPlannerProps {
@@ -18,63 +17,65 @@ export const RiskPlanner: React.FC<RiskPlannerProps> = ({
   const currentMode = plan.risk_mode || 'balanced';
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Header */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
-        <h1 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <ShieldAlert className="w-5 h-5 text-teal-700" />
-          Uncertainty & Risk-Aware Operational Planner
+    <div className="space-y-8 pb-12 font-sans max-w-7xl mx-auto">
+      {/* Editorial Header */}
+      <div className="bg-white border border-[#DEDED8] rounded-[2px] p-8 space-y-4">
+        <div className="text-[11px] font-bold tracking-widest text-[#64645F] uppercase font-mono">
+          06 / RISK PLANNER
+        </div>
+        <h1 className="text-3xl lg:text-4xl font-bold text-[#111111] tracking-tight">
+          Uncertainty & risk-aware buffering.
         </h1>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Evaluate 80% confidence interval demand bounds and configure risk buffers
+        <p className="text-sm text-[#64645F] max-w-xl">
+          Evaluate 80% confidence interval demand bounds and configure plant capacity buffering strategy.
         </p>
       </div>
 
-      {/* Risk Level Banner */}
-      <div className="p-4 rounded-xl border bg-slate-900 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-rose-500/20 text-rose-300 rounded-lg border border-rose-500/30">
-            <ShieldAlert className="w-6 h-6 animate-pulse" />
+      {/* System Risk Status Banner */}
+      <div className="p-6 rounded-[2px] border bg-[#111111] text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans">
+        <div className="flex items-center gap-4">
+          <div className="p-2.5 bg-[#9E3B3B]/20 text-[#9E3B3B] rounded-[2px] border border-[#9E3B3B]/30">
+            <ShieldAlert className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs uppercase font-bold tracking-wider text-slate-400">System Risk Classification</span>
+              <span className="text-[10px] uppercase font-bold tracking-widest text-white/70 font-mono">Classification</span>
               <Badge variant="danger" size="sm">
                 {summary.risk_level} RISK
               </Badge>
             </div>
-            <p className="text-xs text-slate-300 mt-0.5">{risk_plan?.capacity_risk}</p>
+            <p className="text-xs text-white/80 mt-1 leading-relaxed">{risk_plan?.capacity_risk}</p>
           </div>
         </div>
       </div>
 
       {/* 3 Risk Planning Modes */}
       <Card
-        title="Select Operational Risk Planning Mode"
-        subtitle="Choose how conservative or aggressive plant capacity buffering should be"
+        title="OPERATIONAL RISK MODES"
+        subtitle="Configure how conservative or aggressive plant capacity buffering should be"
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 font-sans">
           {[
             {
               id: 'aggressive',
-              title: 'Aggressive Planning',
-              icon: <Zap className="w-5 h-5 text-amber-500" />,
+              title: 'Aggressive Mode',
+              icon: <Zap className="w-5 h-5 text-[#111111]" />,
               badge: 'Upper Bound',
               badgeVar: 'warning',
-              desc: 'Plans against Upper Bound demand (105% of forecast). Maximizes revenue potential but carries high stockout risk if co-manufacturing is delayed.',
+              desc: 'Plans against Upper Bound demand (105% of forecast). Maximizes revenue potential but carries stockout risk if co-manufacturing is delayed.',
             },
             {
               id: 'balanced',
-              title: 'Balanced Planning',
-              icon: <Shield className="w-5 h-5 text-teal-500" />,
+              title: 'Balanced Mode',
+              icon: <Shield className="w-5 h-5 text-[#324C3A]" />,
               badge: 'Point Forecast',
               badgeVar: 'teal',
-              desc: 'Plans against Point Forecast demand (expected value). Optimizes plant utilization and fulfills high-priority B2B commitments.',
+              desc: 'Plans against Point Forecast demand. Optimizes plant utilization while protecting high-priority B2B contract SLAs.',
             },
             {
               id: 'safe',
               title: 'Safe / Conservative',
-              icon: <ShieldCheck className="w-5 h-5 text-emerald-500" />,
+              icon: <ShieldCheck className="w-5 h-5 text-[#324C3A]" />,
               badge: 'Lower Bound',
               badgeVar: 'success',
               desc: 'Plans against Lower Bound demand (95% of forecast). Guarantees 100% SLA fulfillment with zero risk of unfulfilled orders.',
@@ -85,16 +86,16 @@ export const RiskPlanner: React.FC<RiskPlannerProps> = ({
               <button
                 key={mode.id}
                 onClick={() => onSelectRiskMode(mode.id as RiskMode)}
-                className={`p-4 rounded-xl border text-left transition-all cursor-pointer space-y-3 ${
+                className={`p-5 rounded-[2px] border text-left transition-all cursor-pointer space-y-3 ${
                   isCurrent
-                    ? 'bg-teal-900 text-white border-teal-700 shadow-md ring-2 ring-teal-500/50'
-                    : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-800'
+                    ? 'bg-[#324C3A] text-white border-[#324C3A]'
+                    : 'bg-[#F7F7F2] hover:bg-[#DEDED8]/30 border-[#DEDED8] text-[#111111]'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {mode.icon}
-                    <h3 className={`text-xs font-bold ${isCurrent ? 'text-white' : 'text-slate-900'}`}>
+                    <h3 className={`text-xs font-bold uppercase tracking-wider font-mono ${isCurrent ? 'text-white' : 'text-[#111111]'}`}>
                       {mode.title}
                     </h3>
                   </div>
@@ -102,7 +103,7 @@ export const RiskPlanner: React.FC<RiskPlannerProps> = ({
                     {mode.badge}
                   </Badge>
                 </div>
-                <p className={`text-xs leading-relaxed ${isCurrent ? 'text-teal-100/90' : 'text-slate-500'}`}>
+                <p className={`text-xs leading-relaxed ${isCurrent ? 'text-white/80' : 'text-[#64645F]'}`}>
                   {mode.desc}
                 </p>
               </button>
@@ -113,34 +114,34 @@ export const RiskPlanner: React.FC<RiskPlannerProps> = ({
 
       {/* Uncertainty Bounds Table */}
       <Card
-        title="Segment Demand Uncertainty Bounds (80% CI)"
-        subtitle="Expected point forecast vs residual uncertainty limits"
+        title="DEMAND UNCERTAINTY BOUNDS (80% CI)"
+        subtitle="Expected point forecast versus residual confidence interval limits"
       >
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
+        <div className="overflow-x-auto pt-2">
+          <table className="w-full text-left text-xs border-collapse font-sans">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider">
-                <th className="py-2.5 px-3">Region</th>
-                <th className="py-2.5 px-3">Channel</th>
-                <th className="py-2.5 px-3 text-right">Lower Bound (Safe)</th>
-                <th className="py-2.5 px-3 text-right font-bold text-slate-900">Point Forecast</th>
-                <th className="py-2.5 px-3 text-right">Upper Bound (Aggressive)</th>
-                <th className="py-2.5 px-3 text-center">Uncertainty Range</th>
+              <tr className="border-b border-[#DEDED8] bg-[#F7F7F2] text-[#64645F] font-mono uppercase text-[10px] tracking-wider">
+                <th className="py-3 px-4">Region</th>
+                <th className="py-3 px-4">Channel</th>
+                <th className="py-3 px-4 text-right">Lower Bound (Safe)</th>
+                <th className="py-3 px-4 text-right font-bold text-[#111111]">Point Forecast</th>
+                <th className="py-3 px-4 text-right">Upper Bound (Aggressive)</th>
+                <th className="py-3 px-4 text-center">Uncertainty Gap</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-[#DEDED8]">
               {(risk_plan?.forecast_segments || []).map((seg, idx) => (
-                <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-2.5 px-3 font-semibold text-slate-800">{seg.region}</td>
-                  <td className="py-2.5 px-3">
+                <tr key={idx} className="hover:bg-[#F7F7F2]/60 transition-colors">
+                  <td className="py-3 px-4 font-bold text-[#111111]">{seg.region}</td>
+                  <td className="py-3 px-4">
                     <Badge variant={seg.channel === 'B2B' ? 'teal' : 'info'} size="sm">
                       {seg.channel}
                     </Badge>
                   </td>
-                  <td className="py-2.5 px-3 text-right font-mono text-emerald-700 font-semibold">{seg.lower_bound_kg} kg</td>
-                  <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">{seg.point_forecast_kg} kg</td>
-                  <td className="py-2.5 px-3 text-right font-mono text-amber-700 font-semibold">{seg.upper_bound_kg} kg</td>
-                  <td className="py-2.5 px-3 text-center">
+                  <td className="py-3 px-4 text-right font-mono font-semibold text-[#324C3A]">{seg.lower_bound_kg.toLocaleString()} kg</td>
+                  <td className="py-3 px-4 text-right font-mono font-bold text-[#111111]">{seg.point_forecast_kg.toLocaleString()} kg</td>
+                  <td className="py-3 px-4 text-right font-mono font-semibold text-[#9E3B3B]">{seg.upper_bound_kg.toLocaleString()} kg</td>
+                  <td className="py-3 px-4 text-center font-mono">
                     <Badge variant="neutral" size="sm">
                       ±{Math.round((seg.upper_bound_kg - seg.lower_bound_kg) / 2)} kg
                     </Badge>
@@ -154,3 +155,4 @@ export const RiskPlanner: React.FC<RiskPlannerProps> = ({
     </div>
   );
 };
+

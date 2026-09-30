@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   LayoutDashboard, TrendingUp, Layers, Sliders, Users,
-  Target, ShieldAlert, Bot, FileText, Cpu, CheckCircle2, AlertTriangle
+  Target, ShieldAlert, Bot, FileText
 } from 'lucide-react';
 
 export type ScreenId =
@@ -24,6 +24,7 @@ interface SidebarProps {
 
 interface NavItem {
   id: ScreenId;
+  num: string;
   label: string;
   icon: React.ReactNode;
   badge?: string;
@@ -37,52 +38,50 @@ export const Sidebar: React.FC<SidebarProps> = ({
   hasShortage = false,
 }) => {
   const navItems: NavItem[] = [
-    { id: 'overview', label: 'Executive Control Tower', icon: <LayoutDashboard className="w-4 h-4" /> },
-    { id: 'forecast', label: 'Demand Forecast', icon: <TrendingUp className="w-4 h-4" /> },
-    { id: 'allocation', label: 'Capacity Allocation', icon: <Layers className="w-4 h-4" /> },
+    { id: 'overview', num: '01', label: 'Executive Briefing', icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
+    { id: 'forecast', num: '02', label: 'Demand Forecast', icon: <TrendingUp className="w-3.5 h-3.5" /> },
+    { id: 'allocation', num: '03', label: 'Capacity Allocation', icon: <Layers className="w-3.5 h-3.5" /> },
     {
       id: 'scenarios',
+      num: '04',
       label: 'Scenario Lab',
-      icon: <Sliders className="w-4 h-4" />,
-      badge: 'Interactive',
+      icon: <Sliders className="w-3.5 h-3.5" />,
+      badge: 'Simulate',
       badgeVariant: 'teal',
     },
-    { id: 'b2b', label: 'B2B Account Evaluator', icon: <Users className="w-4 h-4" /> },
-    { id: 'marketing', label: 'Marketing Intelligence', icon: <Target className="w-4 h-4" /> },
+    { id: 'b2b', num: '05', label: 'B2B Evaluator', icon: <Users className="w-3.5 h-3.5" /> },
+    { id: 'marketing', num: '06', label: 'Marketing ROI', icon: <Target className="w-3.5 h-3.5" /> },
     {
       id: 'risk',
+      num: '07',
       label: 'Risk Planner',
-      icon: <ShieldAlert className="w-4 h-4" />,
-      badge: hasShortage ? 'Critical' : undefined,
+      icon: <ShieldAlert className="w-3.5 h-3.5" />,
+      badge: hasShortage ? 'Risk' : undefined,
       badgeVariant: 'danger',
     },
-    { id: 'copilot', label: 'AI Operations Copilot', icon: <Bot className="w-4 h-4" /> },
-    { id: 'plan', label: 'Final Action Plan', icon: <FileText className="w-4 h-4" /> },
+    { id: 'copilot', num: '08', label: 'Operations Copilot', icon: <Bot className="w-3.5 h-3.5" /> },
+    { id: 'plan', num: '09', label: 'Execution Roadmap', icon: <FileText className="w-3.5 h-3.5" /> },
   ];
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col h-screen sticky top-0 border-r border-slate-800 shrink-0 select-none">
-      {/* Brand Header */}
-      <div className="p-4 border-b border-slate-800/80 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-teal-500 flex items-center justify-center text-slate-950 font-bold font-display shadow-md shadow-teal-500/20">
-            <Cpu className="w-5 h-5 text-slate-950" />
-          </div>
+    <aside className="w-64 bg-white text-[#111111] flex flex-col h-screen sticky top-0 border-r border-[#DEDED8] shrink-0 select-none font-sans z-30">
+      {/* Official BioKraft Brand Header */}
+      <div className="p-5 border-b border-[#DEDED8] space-y-2">
+        <div className="flex items-center gap-2">
+          <div className="w-2.5 h-6 bg-[#324C3A] rounded-[1px]" />
           <div>
-            <div className="text-sm font-bold text-white font-display tracking-tight leading-none">
-              BioKraft Foods
-            </div>
-            <div className="text-[10px] uppercase font-semibold tracking-wider text-teal-400 mt-1">
-              Decision Tower AI
+            <div className="text-base font-bold tracking-tight text-[#111111]">BIOKRAFT</div>
+            <div className="text-[10px] font-bold tracking-widest text-[#64645F] uppercase">
+              Operations Intelligence
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        <div className="px-3 mb-2 text-[10px] uppercase font-bold tracking-wider text-slate-400">
-          Core Operations
+      {/* Main Numbered Navigation */}
+      <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-1">
+        <div className="px-3 mb-2.5 text-[10px] uppercase font-bold tracking-widest text-[#64645F]">
+          Platform Modules
         </div>
         {navItems.map((item) => {
           const isActive = currentScreen === item.id;
@@ -90,24 +89,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               key={item.id}
               onClick={() => onSelectScreen(item.id)}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-150 group cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-[2px] text-xs font-bold transition-all cursor-pointer group ${
                 isActive
-                  ? 'bg-teal-700 text-white shadow-sm font-semibold'
-                  : 'hover:bg-slate-800/80 text-slate-300 hover:text-white'
+                  ? 'bg-[#324C3A] text-white'
+                  : 'hover:bg-[#F7F7F2] text-[#64645F] hover:text-[#111111]'
               }`}
             >
-              <div className="flex items-center gap-2.5">
-                <span className={isActive ? 'text-white' : 'text-slate-400 group-hover:text-teal-400'}>
-                  {item.icon}
+              <div className="flex items-center gap-3">
+                <span className={`text-[10px] font-mono font-bold ${isActive ? 'text-[#E8EFE5]' : 'text-[#64645F] group-hover:text-[#111111]'}`}>
+                  {item.num}
                 </span>
-                <span>{item.label}</span>
+                <span className="tracking-tight">{item.label}</span>
               </div>
               {item.badge && (
                 <span
-                  className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
-                    item.badgeVariant === 'danger'
-                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                      : 'bg-teal-500/20 text-teal-300 border border-teal-500/30'
+                  className={`text-[9px] px-1.5 py-0.5 rounded-[2px] font-bold uppercase tracking-wider ${
+                    isActive
+                      ? 'bg-[#E8EFE5] text-[#324C3A]'
+                      : item.badgeVariant === 'danger'
+                      ? 'bg-[#FDF2F2] text-[#9E3B3B] border border-[#EAA8A8]'
+                      : 'bg-[#E8EFE5] text-[#324C3A] border border-[#718B6B]/40'
                   }`}
                 >
                   {item.badge}
@@ -119,25 +120,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </nav>
 
       {/* Engine Status & System Info */}
-      <div className="p-3 m-3 bg-slate-950/80 border border-slate-800/80 rounded-xl space-y-2 text-xs">
-        <div className="flex items-center justify-between text-slate-400">
-          <span>Backend API</span>
+      <div className="p-4 m-3 bg-[#F7F7F2] border border-[#DEDED8] rounded-[2px] space-y-2 text-xs">
+        <div className="flex items-center justify-between text-[#111111]">
+          <span className="text-[10px] uppercase font-bold tracking-wider text-[#64645F]">Engine API</span>
           <div className="flex items-center gap-1.5">
             <span
               className={`w-2 h-2 rounded-full ${
-                isBackendConnected ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'
+                isBackendConnected ? 'bg-[#718B6B]' : 'bg-[#9E3B3B]'
               }`}
             />
-            <span className={isBackendConnected ? 'text-emerald-400 font-semibold' : 'text-rose-400 font-semibold'}>
-              {isBackendConnected ? 'ONLINE' : 'OFFLINE'}
+            <span className={`text-[10px] font-mono font-bold ${isBackendConnected ? 'text-[#324C3A]' : 'text-[#9E3B3B]'}`}>
+              {isBackendConnected ? 'GROUNDED' : 'DEMO MODE'}
             </span>
           </div>
         </div>
-        <div className="text-[11px] text-slate-400 flex justify-between pt-1 border-t border-slate-800/60">
-          <span>Engine:</span>
-          <span className="text-slate-300 font-mono">OR-Tools + GBR</span>
+        <div className="text-[10px] text-[#64645F] flex justify-between pt-2 border-t border-[#DEDED8]">
+          <span>Optimizer:</span>
+          <span className="text-[#111111] font-bold">OR-Tools + GBR</span>
         </div>
       </div>
     </aside>
   );
 };
+
+
+

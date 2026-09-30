@@ -16,22 +16,22 @@ export const Badge: React.FC<BadgeProps> = ({
   className = '',
 }) => {
   const variantStyles = {
-    success: 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
-    warning: 'bg-amber-50 text-amber-700 border-amber-200/80',
-    danger: 'bg-rose-50 text-rose-700 border-rose-200/80',
-    info: 'bg-sky-50 text-sky-700 border-sky-200/80',
-    teal: 'bg-teal-50 text-teal-800 border-teal-200/80 font-semibold',
-    neutral: 'bg-slate-100 text-slate-700 border-slate-200',
+    success: 'bg-[#E8EFE5] text-[#324C3A] border-[#718B6B]/40',
+    warning: 'bg-[#FDF8EF] text-[#B47832] border-[#E8D5B7]',
+    danger: 'bg-[#FDF2F2] text-[#9E3B3B] border-[#EAA8A8]',
+    info: 'bg-[#F4F7F9] text-[#3B5B78] border-[#D0DCDE]',
+    teal: 'bg-[#E8EFE5] text-[#324C3A] border-[#718B6B]/40 font-bold',
+    neutral: 'bg-[#F7F7F2] text-[#64645F] border-[#DEDED8]',
   };
 
   const sizeStyles = {
-    sm: 'px-2 py-0.5 text-xs font-medium',
-    md: 'px-2.5 py-1 text-xs font-semibold',
+    sm: 'px-2 py-0.5 text-[9px] font-bold tracking-wider uppercase',
+    md: 'px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase',
   };
 
   return (
     <span
-      className={`inline-flex items-center gap-1.2 rounded-md border ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      className={`inline-flex items-center gap-1 rounded-[2px] border ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
     >
       {icon && <span className="shrink-0">{icon}</span>}
       {children}

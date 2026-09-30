@@ -105,15 +105,24 @@ def evaluate_new_b2b_account(new_account: dict, available_capacity_kg: float, se
     else:
         spare = max(0.0, available_capacity_kg - sim_baseline['total_allocated_kg'])
         
+    expl_str = " ".join(reasons) if reasons else ("Sufficient capacity available for onboarding." if feasibility == "FEASIBLE" else "Capacity bottleneck detected.")
+
     return {
+        "customer_name": new_account.get("customer_name", "Prospective Account"),
         "feasibility": feasibility,
+        "requested_quantity_kg": round(new_req, 2),
         "new_account_fulfillment_pct": round(new_pct_0, 2),
         "current_spare_capacity_kg": round(spare, 2),
         "capacity_deficit_kg": round(capacity_deficit, 2),
-        "minimum_extra_capacity_required_kg": round(min_extra_cap, 2),
-        "revenue_change_inr": round(rev_change, 2),
-        "existing_b2b_fulfillment_before": round(baseline_b2b_pct, 2),
-        "existing_b2b_fulfillment_after": round(ex_b2b_0, 2),
+        "minimum_additional_capacity_required_kg": round(min_extra_cap, 2),
+        "minimum_extra_capacity_required_kg": round(min_extra_cap, 2), # Alias
+        "revenue_impact_inr": round(rev_change, 2),
+        "revenue_change_inr": round(rev_change, 2), # Alias
+        "existing_b2b_fulfillment_before_pct": round(baseline_b2b_pct, 2),
+        "existing_b2b_fulfillment_before": round(baseline_b2b_pct, 2), # Alias
+        "existing_b2b_fulfillment_after_pct": round(ex_b2b_0, 2),
+        "existing_b2b_fulfillment_after": round(ex_b2b_0, 2), # Alias
         "recommendation": "Accept Contract" if feasibility == "FEASIBLE" else ("Negotiate Capacity Addition" if feasibility == "CONDITIONALLY_FEASIBLE" else "Reject Contract"),
+        "explanation": expl_str,
         "reasons": reasons
     }

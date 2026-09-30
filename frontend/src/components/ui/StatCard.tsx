@@ -28,41 +28,43 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
   return (
     <div
-      className={`tower-card p-5 relative overflow-hidden transition-all duration-200 ${
-        highlight ? 'bg-gradient-to-br from-teal-900 via-teal-950 to-slate-950 text-white border-teal-800' : 'bg-white'
+      className={`border rounded-[2px] p-6 relative overflow-hidden transition-all ${
+        highlight
+          ? 'bg-[#324C3A] text-white border-[#324C3A]'
+          : 'bg-white border-[#DEDED8]'
       }`}
     >
       <div className="flex items-start justify-between">
-        <span className={`text-xs font-semibold tracking-wide uppercase ${highlight ? 'text-teal-200/90' : 'text-slate-500'}`}>
+        <span className={`text-[11px] font-bold tracking-wider uppercase ${highlight ? 'text-[#E8EFE5]' : 'text-[#64645F]'}`}>
           {title}
         </span>
         {icon && (
-          <div className={`p-2 rounded-lg ${highlight ? 'bg-teal-800/50 text-teal-300' : 'bg-slate-100 text-teal-700'}`}>
+          <div className={`p-1.5 rounded-[2px] ${highlight ? 'bg-[#263B2D] text-[#E8EFE5]' : 'bg-[#F7F7F2] text-[#324C3A]'}`}>
             {icon}
           </div>
         )}
       </div>
 
-      <div className="mt-3 flex items-baseline gap-1.5">
-        <span className={`text-2xl lg:text-3xl font-bold font-display tracking-tight ${highlight ? 'text-white' : 'text-slate-900'}`}>
+      <div className="mt-4 flex items-baseline gap-1.5">
+        <span className={`text-3xl lg:text-4xl font-bold tracking-tight ${highlight ? 'text-white' : 'text-[#111111]'}`}>
           {typeof value === 'number' ? value.toLocaleString('en-IN') : value}
         </span>
-        {unit && <span className={`text-sm font-medium ${highlight ? 'text-teal-200' : 'text-slate-500'}`}>{unit}</span>}
+        {unit && <span className={`text-sm font-medium ${highlight ? 'text-[#E8EFE5]' : 'text-[#64645F]'}`}>{unit}</span>}
       </div>
 
-      <div className="mt-3 flex items-center justify-between">
+      <div className="mt-4 pt-3 border-t border-[#DEDED8]/60 flex items-center justify-between">
         {subtitle && (
-          <span className={`text-xs ${highlight ? 'text-teal-200/80' : 'text-slate-500'}`}>{subtitle}</span>
+          <span className={`text-xs ${highlight ? 'text-[#E8EFE5]/80' : 'text-[#64645F]'}`}>{subtitle}</span>
         )}
         {badgeText && <Badge variant={badgeVariant}>{badgeText}</Badge>}
         {change && (
           <span
-            className={`text-xs font-semibold ${
+            className={`text-xs font-bold ${
               changeType === 'positive'
-                ? 'text-emerald-600'
+                ? 'text-[#718B6B]'
                 : changeType === 'negative'
-                ? 'text-rose-600'
-                : 'text-slate-500'
+                ? 'text-[#9E3B3B]'
+                : 'text-[#64645F]'
             }`}
           >
             {change}

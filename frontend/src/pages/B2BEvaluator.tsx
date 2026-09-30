@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Users, UserPlus, CheckCircle2, AlertTriangle, XCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Users, UserPlus, CheckCircle2, AlertTriangle, XCircle, ShieldCheck } from 'lucide-react';
 import { OperationalPlan, B2BAccount, B2BEvaluationResponse } from '../api/types';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { Badge } from '../components/ui/Badge';
 import { api } from '../api/client';
 
 interface B2BEvaluatorProps {
@@ -38,11 +37,13 @@ export const B2BEvaluator: React.FC<B2BEvaluatorProps> = ({ plan }) => {
     };
 
     try {
+      const availCap = summary?.usable_capacity_kg || 3950;
+      const segs = plan?.allocation_plan?.segments || [];
       const res = await api.evaluateB2BAccount(
         new_account,
-        summary.usable_capacity_kg,
-        plan.allocation_plan.segments || [],
-        plan.strategy
+        availCap,
+        segs,
+        plan?.strategy || 'balanced'
       );
       setResult(res);
     } catch {
@@ -84,15 +85,17 @@ export const B2BEvaluator: React.FC<B2BEvaluatorProps> = ({ plan }) => {
   };
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Header */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200/80 shadow-sm">
-        <h1 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <Users className="w-5 h-5 text-teal-700" />
-          B2B Customer Onboarding Evaluator
+    <div className="space-y-8 pb-12 font-sans max-w-7xl mx-auto">
+      {/* Editorial Header */}
+      <div className="bg-white border border-[#DEDED8] rounded-[2px] p-8 space-y-4">
+        <div className="text-[11px] font-bold tracking-widest text-[#64645F] uppercase font-mono">
+          04 / B2B CONTRACT EVALUATOR
+        </div>
+        <h1 className="text-3xl lg:text-4xl font-bold text-[#111111] tracking-tight">
+          Feasibility check for new accounts.
         </h1>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Capacity-aware feasibility assessment for prospective B2B institutional accounts
+        <p className="text-sm text-[#64645F] max-w-xl">
+          Capacity-aware feasibility assessment and margin analysis for prospective B2B institutional client contracts.
         </p>
       </div>
 
@@ -101,29 +104,29 @@ export const B2BEvaluator: React.FC<B2BEvaluatorProps> = ({ plan }) => {
         {/* Form Panel */}
         <div className="lg:col-span-5">
           <Card
-            title="Prospective Account Details"
-            subtitle="Enter customer SLA contract parameters for capacity impact evaluation"
+            title="PROSPECTIVE CLIENT CONTRACT"
+            subtitle="Enter contract SLA parameters for real-time capacity validation"
           >
-            <form onSubmit={handleEvaluate} className="space-y-4 pt-1">
+            <form onSubmit={handleEvaluate} className="space-y-4 pt-2 font-sans">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Customer Name</label>
+                <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-1">Customer Account Name</label>
                 <input
                   type="text"
                   required
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-teal-500 focus:outline-none"
-                  placeholder="e.g. RetailCorp India"
+                  className="w-full px-3 py-2 border border-[#DEDED8] bg-[#F7F7F2] rounded-[2px] text-xs font-semibold text-[#111111] focus:ring-1 focus:ring-[#324C3A] focus:outline-none"
+                  placeholder="e.g. National Hypermarket Co"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Region</label>
+                  <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-1">Target Region</label>
                   <select
                     value={region}
                     onChange={(e) => setRegion(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-teal-500 focus:outline-none bg-white"
+                    className="w-full px-3 py-2 border border-[#DEDED8] bg-[#F7F7F2] rounded-[2px] text-xs font-semibold text-[#111111] focus:ring-1 focus:ring-[#324C3A] focus:outline-none cursor-pointer"
                   >
                     <option value="Mumbai">Mumbai</option>
                     <option value="Pune">Pune</option>
@@ -134,11 +137,11 @@ export const B2BEvaluator: React.FC<B2BEvaluatorProps> = ({ plan }) => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Priority SLA</label>
+                  <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-1">Priority Tier</label>
                   <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value as any)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-teal-500 focus:outline-none bg-white"
+                    className="w-full px-3 py-2 border border-[#DEDED8] bg-[#F7F7F2] rounded-[2px] text-xs font-semibold text-[#111111] focus:ring-1 focus:ring-[#324C3A] focus:outline-none cursor-pointer"
                   >
                     <option value="HIGH">HIGH (Key Account)</option>
                     <option value="MEDIUM">MEDIUM (Standard)</option>
@@ -149,7 +152,7 @@ export const B2BEvaluator: React.FC<B2BEvaluatorProps> = ({ plan }) => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Requirement (kg/mo)</label>
+                  <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-1">Requirement (kg/mo)</label>
                   <input
                     type="number"
                     min="50"
@@ -158,12 +161,12 @@ export const B2BEvaluator: React.FC<B2BEvaluatorProps> = ({ plan }) => {
                     required
                     value={requirementKg}
                     onChange={(e) => setRequirementKg(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                    className="w-full px-3 py-2 border border-[#DEDED8] bg-[#F7F7F2] rounded-[2px] text-xs font-mono font-bold text-[#111111] focus:ring-1 focus:ring-[#324C3A] focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Unit Price (₹/kg)</label>
+                  <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-1">Unit Price (₹/kg)</label>
                   <input
                     type="number"
                     min="100"
@@ -172,13 +175,13 @@ export const B2BEvaluator: React.FC<B2BEvaluatorProps> = ({ plan }) => {
                     required
                     value={unitPriceInr}
                     onChange={(e) => setUnitPriceInr(Number(e.target.value))}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs text-slate-900 focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                    className="w-full px-3 py-2 border border-[#DEDED8] bg-[#F7F7F2] rounded-[2px] text-xs font-mono font-bold text-[#111111] focus:ring-1 focus:ring-[#324C3A] focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Contract Minimum SLA ({minFulfillmentPct}%)</label>
+                <label className="block text-xs font-bold text-[#111111] uppercase tracking-wider mb-1">Minimum Contract SLA ({minFulfillmentPct}%)</label>
                 <input
                   type="range"
                   min="50"
@@ -186,7 +189,7 @@ export const B2BEvaluator: React.FC<B2BEvaluatorProps> = ({ plan }) => {
                   step="5"
                   value={minFulfillmentPct}
                   onChange={(e) => setMinFulfillmentPct(Number(e.target.value))}
-                  className="w-full accent-teal-600 cursor-pointer"
+                  className="w-full accent-[#324C3A] cursor-pointer"
                 />
               </div>
 
@@ -196,9 +199,9 @@ export const B2BEvaluator: React.FC<B2BEvaluatorProps> = ({ plan }) => {
                 size="md"
                 className="w-full"
                 isLoading={isEvaluating}
-                icon={<UserPlus className="w-4 h-4" />}
+                icon={<UserPlus className="w-4 h-4 text-white" />}
               >
-                Evaluate Account Feasibility
+                Evaluate Feasibility
               </Button>
             </form>
           </Card>
@@ -207,74 +210,74 @@ export const B2BEvaluator: React.FC<B2BEvaluatorProps> = ({ plan }) => {
         {/* Results Panel */}
         <div className="lg:col-span-7">
           <Card
-            title="Feasibility Analysis & Capacity Impact"
-            subtitle="Automated evaluation against plant capacity limits and current client commitments"
+            title="EVALUATION RESULTS & FEASIBILITY"
+            subtitle="Automated evaluation against available capacity and existing SLA obligations"
           >
             {result ? (
-              <div className="space-y-4 pt-1">
+              <div className="space-y-6 pt-2 font-sans">
                 {/* Feasibility Banner */}
                 <div
-                  className={`p-4 rounded-xl border flex items-center justify-between ${
+                  className={`p-5 rounded-[2px] border flex items-center justify-between ${
                     result.feasibility === 'FEASIBLE'
-                      ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                      ? 'bg-[#E8EFE5] border-[#718B6B]/40 text-[#324C3A]'
                       : result.feasibility === 'CONDITIONALLY_FEASIBLE'
-                      ? 'bg-amber-50 border-amber-300 text-amber-900'
-                      : 'bg-rose-50 border-rose-300 text-rose-900'
+                      ? 'bg-[#FFFBEB] border-[#F59E0B]/40 text-[#B45309]'
+                      : 'bg-[#FDF2F2] border-[#EAA8A8] text-[#9E3B3B]'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     {result.feasibility === 'FEASIBLE' ? (
-                      <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
+                      <CheckCircle2 className="w-6 h-6 text-[#324C3A] shrink-0" />
                     ) : result.feasibility === 'CONDITIONALLY_FEASIBLE' ? (
-                      <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0" />
+                      <AlertTriangle className="w-6 h-6 text-[#B45309] shrink-0" />
                     ) : (
-                      <XCircle className="w-6 h-6 text-rose-600 shrink-0" />
+                      <XCircle className="w-6 h-6 text-[#9E3B3B] shrink-0" />
                     )}
                     <div>
-                      <h3 className="text-sm font-bold uppercase tracking-wide">
-                        {result.feasibility.replace('_', ' ')}
+                      <h3 className="text-sm font-bold uppercase tracking-wider font-mono">
+                        STATUS: {result.feasibility.replace('_', ' ')}
                       </h3>
-                      <p className="text-xs mt-0.5 opacity-90">{result.explanation}</p>
+                      <p className="text-xs mt-1 leading-relaxed opacity-90">{result.explanation}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Impact Metrics Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg">
-                    <span className="text-[11px] text-slate-500 font-semibold uppercase">Requested Volume</span>
-                    <div className="text-lg font-bold text-slate-900 font-display mt-1">{result.requested_quantity_kg.toLocaleString()} kg</div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 font-mono">
+                  <div className="p-4 bg-[#F7F7F2] border border-[#DEDED8] rounded-[2px]">
+                    <span className="text-[10px] text-[#64645F] font-bold uppercase tracking-wider font-sans">Requested Volume</span>
+                    <div className="text-lg font-bold text-[#111111] mt-1">{result.requested_quantity_kg.toLocaleString()} kg</div>
                   </div>
 
-                  <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg">
-                    <span className="text-[11px] text-slate-500 font-semibold uppercase">Est. Revenue Impact</span>
-                    <div className="text-lg font-bold text-emerald-700 font-display mt-1">₹{result.revenue_impact_inr.toLocaleString('en-IN')}</div>
+                  <div className="p-4 bg-[#F7F7F2] border border-[#DEDED8] rounded-[2px]">
+                    <span className="text-[10px] text-[#64645F] font-bold uppercase tracking-wider font-sans">Est. Revenue Impact</span>
+                    <div className="text-lg font-bold text-[#324C3A] mt-1">₹{result.revenue_impact_inr.toLocaleString('en-IN')}</div>
                   </div>
 
-                  <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-lg">
-                    <span className="text-[11px] text-slate-500 font-semibold uppercase">Projected Capacity Deficit</span>
-                    <div className="text-lg font-bold text-rose-600 font-display mt-1">{result.capacity_deficit_kg.toLocaleString()} kg</div>
+                  <div className="p-4 bg-[#F7F7F2] border border-[#DEDED8] rounded-[2px]">
+                    <span className="text-[10px] text-[#64645F] font-bold uppercase tracking-wider font-sans">Capacity Deficit</span>
+                    <div className="text-lg font-bold text-[#9E3B3B] mt-1">{result.capacity_deficit_kg.toLocaleString()} kg</div>
                   </div>
                 </div>
 
-                {/* Actionable Advice if Conditionally Feasible */}
+                {/* Advice Action Block */}
                 {result.minimum_additional_capacity_required_kg > 0 && (
-                  <div className="p-4 bg-teal-900 text-white rounded-xl space-y-2">
-                    <h4 className="text-xs font-bold text-teal-200 uppercase tracking-wider flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-teal-300" /> Action Required to Onboard Account
+                  <div className="p-5 bg-[#324C3A] text-white rounded-[2px] space-y-2">
+                    <h4 className="text-xs font-bold text-white/90 uppercase tracking-wider flex items-center gap-1.5 font-mono">
+                      <ShieldCheck className="w-4 h-4 text-white" /> Recommended Action
                     </h4>
-                    <p className="text-xs text-teal-100/90 leading-relaxed">
-                      Add approximately <strong className="text-white underline">+{result.minimum_additional_capacity_required_kg} kg</strong> extra capacity via co-manufacturing before confirming SLA contract with {result.customer_name}.
+                    <p className="text-xs text-white/80 leading-relaxed font-sans">
+                      Procure approximately <strong className="text-white font-mono font-bold">+{result.minimum_additional_capacity_required_kg} kg</strong> additional capacity via co-manufacturing before executing the contract SLA with {result.customer_name}.
                     </p>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="py-12 text-center space-y-3">
-                <Users className="w-8 h-8 text-slate-300 mx-auto" />
-                <div className="text-sm font-semibold text-slate-700">Ready for Evaluation</div>
-                <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                  Enter prospective client parameters on the left and click <strong>Evaluate Account Feasibility</strong>.
+              <div className="py-12 text-center space-y-3 font-sans">
+                <Users className="w-8 h-8 text-[#DEDED8] mx-auto" />
+                <div className="text-sm font-bold text-[#111111] uppercase tracking-wider">Ready for Evaluation</div>
+                <p className="text-xs text-[#64645F] max-w-sm mx-auto">
+                  Enter prospective client contract parameters on the left and click <strong>Evaluate Feasibility</strong>.
                 </p>
               </div>
             )}
@@ -284,3 +287,4 @@ export const B2BEvaluator: React.FC<B2BEvaluatorProps> = ({ plan }) => {
     </div>
   );
 };
+

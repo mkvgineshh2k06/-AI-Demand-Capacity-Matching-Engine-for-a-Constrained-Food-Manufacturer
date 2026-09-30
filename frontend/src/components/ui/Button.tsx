@@ -17,14 +17,14 @@ export const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
-  const base = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none cursor-pointer';
+  const base = 'inline-flex items-center justify-center font-bold tracking-wider uppercase rounded-[2px] transition-all focus:outline-none disabled:opacity-40 disabled:pointer-events-none cursor-pointer';
 
   const variants = {
-    primary: 'bg-teal-700 hover:bg-teal-800 text-white focus:ring-teal-600 shadow-sm active:bg-teal-900',
-    secondary: 'bg-slate-900 hover:bg-slate-800 text-white focus:ring-slate-700 shadow-sm',
-    outline: 'border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 focus:ring-teal-500 shadow-sm',
-    ghost: 'hover:bg-slate-100 text-slate-700 focus:ring-slate-400',
-    danger: 'bg-rose-600 hover:bg-rose-700 text-white focus:ring-rose-500 shadow-sm',
+    primary: 'bg-[#324C3A] hover:bg-[#263B2D] text-white active:bg-[#1C2C21]',
+    secondary: 'bg-[#111111] hover:bg-[#222222] text-white',
+    outline: 'border border-[#DEDED8] bg-white hover:bg-[#F7F7F2] text-[#111111]',
+    ghost: 'hover:bg-[#E8EFE5] text-[#111111]',
+    danger: 'bg-[#9E3B3B] hover:bg-[#822E2E] text-white',
   };
 
   const sizes = {

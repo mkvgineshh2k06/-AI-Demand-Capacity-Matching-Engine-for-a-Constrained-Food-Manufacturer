@@ -20,16 +20,16 @@ export const Card: React.FC<CardProps> = ({
   active = false,
 }) => {
   return (
-    <div className={`tower-card p-5 ${active ? 'ring-2 ring-teal-500/40 border-teal-500' : ''} ${className}`}>
+    <div className={`bg-white border ${active ? 'border-[#324C3A] ring-1 ring-[#324C3A]' : 'border-[#DEDED8]'} rounded-[2px] p-6 transition-all ${className}`}>
       {(title || action || subtitle) && (
-        <div className={`flex items-center justify-between mb-4 pb-3 border-b border-slate-100 ${headerClassName}`}>
+        <div className={`flex items-center justify-between mb-5 pb-3.5 border-b border-[#DEDED8] ${headerClassName}`}>
           <div>
             {title && typeof title === 'string' ? (
-              <h3 className="text-base font-semibold text-slate-900">{title}</h3>
+              <h3 className="text-sm font-bold tracking-tight text-[#111111] uppercase">{title}</h3>
             ) : (
               title
             )}
-            {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+            {subtitle && <p className="text-xs text-[#64645F] mt-0.5 font-normal">{subtitle}</p>}
           </div>
           {action && <div className="shrink-0">{action}</div>}
         </div>

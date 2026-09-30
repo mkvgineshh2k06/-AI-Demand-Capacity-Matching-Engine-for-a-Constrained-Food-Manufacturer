@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   TrendingUp, HardDrive, AlertTriangle, ShieldCheck, DollarSign,
-  PieChart, CheckCircle2, ArrowRight, ShieldAlert, Zap
+  CheckCircle2, ArrowRight, ShieldAlert, Zap
 } from 'lucide-react';
 import { OperationalPlan, OptimizationStrategy } from '../api/types';
 import { StatCard } from '../components/ui/StatCard';
@@ -10,7 +10,7 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  Legend, Cell
+  Legend
 } from 'recharts';
 
 interface OverviewProps {
@@ -44,7 +44,6 @@ export const Overview: React.FC<OverviewProps> = ({
     return Object.values(map);
   }, [allocation_plan]);
 
-
   // Channel breakdown (Dynamic Allocation vs Forecast Demand per Channel)
   const channelData = React.useMemo(() => {
     let b2bDem = 0, b2bAlloc = 0;
@@ -74,65 +73,111 @@ export const Overview: React.FC<OverviewProps> = ({
         demand: b2bDem,
         allocated: b2bAlloc > 0 ? b2bAlloc : Math.round(b2bDem * (b2bFul / 100)),
         fulfillment_pct: b2bFul,
-        color: '#0d9488',
+        color: '#324C3A',
       },
       {
         name: 'D2C Consumer',
         demand: d2cDem,
         allocated: d2cAlloc > 0 ? d2cAlloc : Math.round(d2cDem * (d2cFul / 100)),
         fulfillment_pct: d2cFul,
-        color: '#38bdf8',
+        color: '#718B6B',
       },
     ];
   }, [allocation_plan, summary]);
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Top Banner & Risk Alert */}
+    <div className="space-y-8 pb-12 font-sans max-w-7xl mx-auto">
+      {/* Editorial Control Room Hero Banner */}
+      <div className="bg-white border border-[#DEDED8] rounded-[2px] p-8 space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="text-[11px] font-bold tracking-widest text-[#64645F] uppercase font-mono">
+              BIOKRAFT OPERATIONS INTELLIGENCE
+            </div>
+            <h1 className="text-4xl lg:text-5xl font-bold text-[#111111] tracking-tight leading-tight">
+              Demand meets capacity.<br />
+              <span className="text-[#324C3A]">Decisions follow.</span>
+            </h1>
+            <p className="text-sm text-[#64645F] font-normal max-w-xl">
+              AI-assisted operational planning across D2C, B2B contracts, internal production, co-manufacturing, and strategic marketing budget allocation.
+            </p>
+          </div>
+
+          {/* Hero Key Metric Blocks */}
+          <div className="grid grid-cols-3 gap-3 shrink-0">
+            <div className="bg-[#F7F7F2] border border-[#DEDED8] p-4 rounded-[2px] min-w-[120px]">
+              <div className="text-[10px] font-bold tracking-widest text-[#64645F] uppercase">
+                Forecast Demand
+              </div>
+              <div className="text-2xl font-bold text-[#111111] mt-1">
+                {summary.forecast_demand_kg.toLocaleString()} <span className="text-xs font-normal text-[#64645F]">kg</span>
+              </div>
+            </div>
+            <div className="bg-[#F7F7F2] border border-[#DEDED8] p-4 rounded-[2px] min-w-[120px]">
+              <div className="text-[10px] font-bold tracking-widest text-[#64645F] uppercase">
+                Capacity
+              </div>
+              <div className="text-2xl font-bold text-[#324C3A] mt-1">
+                {summary.usable_capacity_kg.toLocaleString()} <span className="text-xs font-normal text-[#64645F]">kg</span>
+              </div>
+            </div>
+            <div className={`p-4 rounded-[2px] min-w-[120px] border ${
+              summary.shortage_kg > 0 ? 'bg-[#FDF2F2] border-[#EAA8A8]' : 'bg-[#E8EFE5] border-[#718B6B]/40'
+            }`}>
+              <div className={`text-[10px] font-bold tracking-widest uppercase ${
+                summary.shortage_kg > 0 ? 'text-[#9E3B3B]' : 'text-[#324C3A]'
+              }`}>
+                Shortage
+              </div>
+              <div className={`text-2xl font-bold mt-1 ${
+                summary.shortage_kg > 0 ? 'text-[#9E3B3B]' : 'text-[#324C3A]'
+              }`}>
+                {summary.shortage_kg.toLocaleString()} <span className="text-xs font-normal">kg</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Risk Alert / Status Banner */}
       {summary.shortage_kg > 0 ? (
-        <div className="bg-gradient-to-r from-rose-950 via-rose-900 to-slate-900 border border-rose-800 text-white rounded-xl p-4 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="bg-[#FDF2F2] border border-[#EAA8A8] text-[#111111] p-4 rounded-[2px] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-rose-800/60 rounded-lg text-rose-300 shrink-0 mt-0.5 md:mt-0">
-              <AlertTriangle className="w-5 h-5 animate-pulse" />
+            <div className="p-1.5 bg-[#9E3B3B] text-white rounded-[2px] shrink-0 mt-0.5">
+              <AlertTriangle className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-rose-300">
-                  Capacity Deficit Warning
-                </h2>
-                <Badge variant="danger" size="sm">
-                  {summary.risk_level} RISK
-                </Badge>
+                <span className="text-xs font-bold uppercase tracking-wider text-[#9E3B3B]">
+                  Capacity Risk Alert / {summary.risk_level}
+                </span>
               </div>
-              <p className="text-xs text-rose-100/90 mt-1">
-                Projected forecast demand ({summary.forecast_demand_kg.toLocaleString()} kg) exceeds available usable capacity ({summary.usable_capacity_kg.toLocaleString()} kg) by{' '}
-                <strong className="text-white underline">{summary.shortage_kg.toLocaleString()} kg</strong>.
+              <p className="text-xs text-[#64645F] mt-0.5">
+                Demand exceeds expected production capacity by <strong className="text-[#111111] font-bold">{summary.shortage_kg.toLocaleString()} kg</strong>. Recommended: Activate additional co-manufacturing or adjust channel allocation.
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onNavigateScreen('scenarios')}
-              className="bg-rose-900/60 border-rose-700 text-white hover:bg-rose-800"
-            >
-              Simulate Mitigation
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onNavigateScreen('scenarios')}
+            className="border-[#9E3B3B] text-[#9E3B3B] hover:bg-[#9E3B3B] hover:text-white shrink-0"
+          >
+            Simulate Mitigation
+          </Button>
         </div>
       ) : (
-        <div className="bg-gradient-to-r from-emerald-950 via-teal-900 to-slate-900 border border-emerald-800 text-white rounded-xl p-4 shadow-sm flex items-center justify-between">
+        <div className="bg-[#E8EFE5] border border-[#718B6B]/40 text-[#324C3A] p-4 rounded-[2px] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-800/60 rounded-lg text-emerald-300">
-              <ShieldCheck className="w-5 h-5" />
+            <div className="p-1.5 bg-[#324C3A] text-white rounded-[2px]">
+              <ShieldCheck className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-wider text-emerald-300">
-                Capacity Operational & Feasible
-              </h2>
-              <p className="text-xs text-emerald-100/90">
-                Available production capacity ({summary.usable_capacity_kg.toLocaleString()} kg) fully satisfies forecast demand ({summary.forecast_demand_kg.toLocaleString()} kg).
+              <span className="text-xs font-bold uppercase tracking-wider text-[#324C3A]">
+                Capacity Status / Optimal
+              </span>
+              <p className="text-xs text-[#324C3A]/90 mt-0.5">
+                Available production capacity ({summary.usable_capacity_kg.toLocaleString()} kg) satisfies projected demand.
               </p>
             </div>
           </div>
@@ -140,107 +185,104 @@ export const Overview: React.FC<OverviewProps> = ({
         </div>
       )}
 
-      {/* 6 Executive KPI StatCards */}
+      {/* 6 Executive Metric Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         <StatCard
           title="Forecast Demand"
           value={summary.forecast_demand_kg}
           unit="kg"
-          subtitle="Total Q2 Period"
-          icon={<TrendingUp className="w-4 h-4 text-teal-700" />}
+          subtitle="Q2 Period Total"
         />
         <StatCard
           title="Usable Capacity"
           value={summary.usable_capacity_kg}
           unit="kg"
           subtitle="Internal + Co-Mfg"
-          icon={<HardDrive className="w-4 h-4 text-teal-700" />}
         />
         <StatCard
           title="Projected Gap"
           value={summary.shortage_kg > 0 ? `-${summary.shortage_kg}` : `+${summary.usable_capacity_kg - summary.forecast_demand_kg}`}
           unit="kg"
           subtitle={summary.shortage_kg > 0 ? 'Deficit Shortage' : 'Spare Buffer'}
-          badgeText={summary.shortage_kg > 0 ? 'Deficit' : 'Surplus'}
+          badgeText={summary.shortage_kg > 0 ? 'Shortage' : 'Surplus'}
           badgeVariant={summary.shortage_kg > 0 ? 'danger' : 'success'}
         />
         <StatCard
           title="Utilization"
           value={`${summary.utilization_pct.toFixed(1)}%`}
-          subtitle="Plant Capacity"
-          badgeText={summary.utilization_pct >= 95 ? 'Peak Load' : 'Normal'}
+          subtitle="Plant Capacity Load"
+          badgeText={summary.utilization_pct >= 95 ? 'Peak' : 'Normal'}
           badgeVariant={summary.utilization_pct >= 95 ? 'warning' : 'info'}
         />
         <StatCard
           title="Projected Revenue"
           value={`₹${(summary.projected_revenue_inr / 100000).toFixed(2)}L`}
           subtitle={`₹${summary.projected_revenue_inr.toLocaleString('en-IN')}`}
-          icon={<DollarSign className="w-4 h-4 text-emerald-700" />}
         />
         <StatCard
-          title="Fulfillment Rate"
+          title="Fulfillment"
           value={`${summary.fulfillment_pct.toFixed(1)}%`}
           subtitle={`B2B: ${summary.b2b_fulfillment_pct.toFixed(0)}% | D2C: ${summary.d2c_fulfillment_pct.toFixed(0)}%`}
           highlight={true}
         />
       </div>
 
-      {/* Main Charts Row */}
+      {/* Main Charts & Breakdown Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Demand vs Allocation Chart */}
+        {/* Regional Allocation Chart */}
         <Card
-          title="Regional Demand vs Allocated Capacity"
-          subtitle="Comparison of unfulfilled demand gaps across operational territories"
+          title="Regional Demand vs Capacity Allocation"
+          subtitle="Comparison of demand and allocated capacity across operational territories"
           className="lg:col-span-2"
           action={
             <Button variant="ghost" size="sm" onClick={() => onNavigateScreen('allocation')}>
-              Detailed Allocation <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              View Allocation <ArrowRight className="w-3.5 h-3.5 ml-1" />
             </Button>
           }
         >
           <div className="h-72 w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={regionData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="region" tickLine={false} axisLine={{ stroke: '#cbd5e1' }} tick={{ fill: '#475569', fontSize: 12 }} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fill: '#475569', fontSize: 12 }} unit=" kg" />
+                <CartesianGrid strokeDasharray="2 2" vertical={false} stroke="#DEDED8" />
+                <XAxis dataKey="region" tickLine={false} axisLine={{ stroke: '#DEDED8' }} tick={{ fill: '#64645F', fontSize: 11, fontWeight: 600 }} />
+                <YAxis tickLine={false} axisLine={false} tick={{ fill: '#64645F', fontSize: 11 }} unit=" kg" />
                 <Tooltip
                   formatter={(value: any) => [`${Number(value).toLocaleString()} kg`, '']}
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#fff', borderRadius: '8px', fontSize: '12px' }}
+                  contentStyle={{ backgroundColor: '#111111', borderColor: '#262624', color: '#fff', borderRadius: '2px', fontSize: '12px' }}
                 />
-                <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                <Bar dataKey="demand" name="Forecast Demand" fill="#94a3b8" radius={[4, 4, 0, 0]} barSize={20} />
-                <Bar dataKey="allocated" name="Allocated Capacity" fill="#0d9488" radius={[4, 4, 0, 0]} barSize={20} />
-                <Bar dataKey="unfulfilled" name="Shortage Gap" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={20} />
+                <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+                <Bar dataKey="demand" name="Forecast Demand" fill="#DEDED8" radius={[2, 2, 0, 0]} barSize={18} />
+                <Bar dataKey="allocated" name="Allocated Capacity" fill="#324C3A" radius={[2, 2, 0, 0]} barSize={18} />
+                <Bar dataKey="unfulfilled" name="Shortage Gap" fill="#9E3B3B" radius={[2, 2, 0, 0]} barSize={18} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
-        {/* D2C vs B2B Channel Breakdown */}
+        {/* Channel Breakdown */}
         <Card
-          title="Demand Channel Breakdown"
-          subtitle="Contractual B2B Commitments vs D2C Volume"
-          action={<Badge variant="teal">Ratio: {(summary.b2b_demand_kg / (summary.d2c_demand_kg || 1)).toFixed(1)}:1</Badge>}
+          title="Channel Distribution"
+          subtitle="Contractual B2B commitments vs D2C retail volume"
+          action={<Badge variant="neutral">Ratio: {(summary.b2b_demand_kg / (summary.d2c_demand_kg || 1)).toFixed(1)}:1</Badge>}
         >
           <div className="space-y-4 pt-2">
             {channelData.map((ch) => {
               const fulPct = Math.min(100, Math.max(0, ch.fulfillment_pct));
               return (
-                <div key={ch.name} className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-lg space-y-2">
+                <div key={ch.name} className="p-4 bg-[#F7F7F2] border border-[#DEDED8] rounded-[2px] space-y-2">
                   <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="text-slate-800 flex items-center gap-2">
+                    <span className="text-[#111111] flex items-center gap-2">
                       <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: ch.color }} />
                       {ch.name}
                     </span>
-                    <span className="text-slate-900 font-bold">
+                    <span className="text-[#111111] font-mono font-bold">
                       {ch.allocated.toLocaleString()} / {ch.demand.toLocaleString()} kg ({fulPct.toFixed(1)}%)
                     </span>
                   </div>
-                  {/* Channel fulfillment progress bar */}
-                  <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                  {/* Fulfillment Progress Bar */}
+                  <div className="w-full bg-[#DEDED8] h-1.5 rounded-[2px] overflow-hidden">
                     <div
-                      className="h-full rounded-full transition-all duration-500"
+                      className="h-full transition-all duration-500"
                       style={{ width: `${fulPct}%`, backgroundColor: ch.color }}
                     />
                   </div>
@@ -248,24 +290,24 @@ export const Overview: React.FC<OverviewProps> = ({
               );
             })}
 
-            <div className="p-3 bg-teal-50/70 border border-teal-200/80 rounded-lg text-xs space-y-1">
-              <span className="font-semibold text-teal-900 flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-teal-700" /> SLA Protection Priority
+            <div className="p-3 bg-[#E8EFE5] border border-[#718B6B]/40 rounded-[2px] text-xs space-y-1">
+              <span className="font-bold text-[#324C3A] flex items-center gap-1.5 uppercase text-[10px] tracking-wider">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#324C3A]" /> Priority Rule Enforced
               </span>
-              <p className="text-teal-800 text-[11px] leading-relaxed">
-                B2B contracts have enforced minimum commitment thresholds. The optimizer protects high-margin B2B commitments ahead of retail D2C spikes.
+              <p className="text-[#324C3A] text-[11px] leading-relaxed">
+                High-priority B2B contract SLAs take precedent. Usable capacity is automatically partitioned to fulfill contractual obligations first.
               </p>
             </div>
           </div>
         </Card>
       </div>
 
-      {/* Strategy Control & Top Actions */}
+      {/* Strategy Control & Top Recommendations */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Strategy Selector Panel */}
+        {/* Strategy Control Selector */}
         <Card
-          title="Optimizer Strategy"
-          subtitle="Select allocation policy to redistribute usable capacity"
+          title="Optimization Strategy"
+          subtitle="Select mathematical objective policy"
         >
           <div className="space-y-3">
             {[
@@ -288,25 +330,25 @@ export const Overview: React.FC<OverviewProps> = ({
               <button
                 key={st.id}
                 onClick={() => onSelectStrategy(st.id as OptimizationStrategy)}
-                className={`w-full text-left p-3.5 rounded-lg border transition-all cursor-pointer ${
+                className={`w-full text-left p-3.5 rounded-[2px] border transition-all cursor-pointer ${
                   plan.strategy === st.id
-                    ? 'bg-teal-50 border-teal-500 ring-1 ring-teal-500/30'
-                    : 'bg-white border-slate-200 hover:border-slate-300'
+                    ? 'bg-[#E8EFE5] border-[#324C3A] text-[#111111]'
+                    : 'bg-white border-[#DEDED8] hover:border-[#718B6B]'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-900">{st.title}</span>
-                  {plan.strategy === st.id && <Badge variant="teal">Active Policy</Badge>}
+                  <span className="text-xs font-bold text-[#111111] uppercase tracking-wider">{st.title}</span>
+                  {plan.strategy === st.id && <Badge variant="success">Active</Badge>}
                 </div>
-                <p className="text-xs text-slate-500 mt-1">{st.desc}</p>
+                <p className="text-xs text-[#64645F] mt-1 leading-relaxed">{st.desc}</p>
               </button>
             ))}
           </div>
         </Card>
 
-        {/* Top Operational Recommendations */}
+        {/* AI Operational Recommendations */}
         <Card
-          title="Top AI Operational Recommendations"
+          title="AI Operational Recommendations"
           subtitle="Deterministic mitigation actions generated by optimization engine"
           className="lg:col-span-2"
         >
@@ -314,25 +356,25 @@ export const Overview: React.FC<OverviewProps> = ({
             {recommendations.slice(0, 4).map((rec, idx) => (
               <div
                 key={rec.action_id || idx}
-                className="p-3.5 bg-slate-50 hover:bg-slate-100/70 border border-slate-200/80 rounded-lg flex items-start justify-between gap-3 transition-colors"
+                className="p-4 bg-[#F7F7F2] border border-[#DEDED8] rounded-[2px] flex items-start justify-between gap-4"
               >
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
                     <Badge
-                      variant={rec.priority === 'HIGH' ? 'danger' : rec.priority === 'MEDIUM' ? 'warning' : 'info'}
+                      variant={rec.priority === 'HIGH' || rec.priority === 'CRITICAL' ? 'danger' : rec.priority === 'MEDIUM' ? 'warning' : 'info'}
                       size="sm"
                     >
-                      {rec.priority} PRIORITY
+                      {rec.priority}
                     </Badge>
-                    <h4 className="text-xs font-bold text-slate-900">{rec.title}</h4>
+                    <h4 className="text-xs font-bold text-[#111111] uppercase tracking-wider">{rec.title}</h4>
                   </div>
-                  <p className="text-xs text-slate-600 leading-relaxed">{rec.description}</p>
-                  <div className="text-[11px] text-slate-500 italic">
+                  <p className="text-xs text-[#64645F] leading-relaxed">{rec.description}</p>
+                  <div className="text-[10px] text-[#64645F] font-mono">
                     Trigger: {rec.trigger_reason}
                   </div>
                 </div>
                 {rec.estimated_impact && (
-                  <Badge variant="teal" size="md" className="shrink-0 font-semibold">
+                  <Badge variant="teal" size="md" className="shrink-0 font-bold font-mono">
                     {rec.estimated_impact}
                   </Badge>
                 )}
@@ -344,3 +386,4 @@ export const Overview: React.FC<OverviewProps> = ({
     </div>
   );
 };
+
