@@ -126,7 +126,7 @@ def allocate_capacity(strategy, available_capacity_kg, segments):
             b2b_req += demand
             b2b_all += alloc_val
             
-            # Shortfall check
+        # Shortfall check
             if i in shortfalls:
                 sf_val = shortfalls[i].solution_value()
                 if sf_val > 1e-4:
@@ -134,7 +134,51 @@ def allocate_capacity(strategy, available_capacity_kg, segments):
                         "segment_id": seg.get('segment_id', f'IDX_{i}'),
                         "shortfall_kg": round(sf_val, 2)
                     })
-                    
+        
+        # -------------------------------------------------------------
+        # Deterministic Explanation per Allocation
+        # -------------------------------------------------------------
+        seg_reasons = []
+        primary_code = "DEMAND_FULLY_SATISFIED"
+        
+        min_commit = float(seg.get('minimum_commitment_kg', 0.0))
+        prio = seg.get('priority', 'LOW').upper()
+        margin = margins[i]
+        
+        if fulfilled_pct >= 99.9:
+            primary_code = "DEMAND_FULLY_SATISFIED"
+            seg_reasons.append("Demand was fully satisfied by available capacity.")
+            if ch == 'B2B':
+                seg_reasons.append("B2B priority commitment fully honored.")
+        elif alloc_val > 0:
+            if ch == 'B2B' and min_commit > 0:
+                primary_code = "B2B_COMMITMENT_PRIORITY"
+                seg_reasons.append("High-priority B2B commitment constraint active.")
+                if alloc_val < min_commit:
+                    primary_code = "UNAVOIDABLE_SHORTFALL"
+                    seg_reasons.append("Capacity insufficient to satisfy full B2B minimum commitment.")
+                else:
+                    seg_reasons.append("Minimum commitment constraint fully satisfied.")
+            elif strategy == "revenue":
+                primary_code = "HIGH_MARGIN_SEGMENT" if margin > 0 else "STRATEGY_REVENUE_PRIORITY"
+                seg_reasons.append(f"Capacity allocated prioritized by contribution margin (₹{round(margin, 2)}/kg).")
+            elif strategy == "fulfillment":
+                primary_code = "STRATEGY_FULFILLMENT_PRIORITY"
+                seg_reasons.append("Prioritized under high service fulfillment weight.")
+            else: # balanced
+                primary_code = "STRATEGY_BALANCED_TRADEOFF"
+                seg_reasons.append("Capacity allocated balancing contribution margin and channel fulfillment priority.")
+                
+            if float(available_capacity_kg) < (total_allocated + total_unfulfilled):
+                seg_reasons.append("Capacity is insufficient to fulfill total demand.")
+        else: # alloc_val == 0
+            if margin <= 0:
+                primary_code = "LOW_MARGIN_UNDER_CONSTRAINT"
+                seg_reasons.append("Zero allocation due to non-positive contribution margin under limited capacity.")
+            else:
+                primary_code = "LOWER_PRIORITY_SEGMENT"
+                seg_reasons.append("Capacity fully utilized by higher-priority B2B or higher-margin segments.")
+
         results.append({
             "segment_id": seg.get('segment_id', f'IDX_{i}'),
             "region": seg.get('region', 'Unknown'),
@@ -143,15 +187,47 @@ def allocate_capacity(strategy, available_capacity_kg, segments):
             "allocated_kg": round(alloc_val, 2),
             "unfulfilled_kg": round(unfulfilled, 2),
             "fulfillment_pct": round(fulfilled_pct, 2),
-            "allocation_revenue_inr": round(rev, 2)
+            "allocation_revenue_inr": round(rev, 2),
+            "explanation": {
+                "primary_reason_code": primary_code,
+                "reasons": seg_reasons
+            }
         })
         
     overall_fulfillment = (total_allocated / (total_allocated + total_unfulfilled) * 100.0) if (total_allocated + total_unfulfilled) > 0 else 100.0
     b2b_fulfillment = (b2b_all / b2b_req * 100.0) if b2b_req > 0 else 100.0
     d2c_fulfillment = (d2c_all / d2c_req * 100.0) if d2c_req > 0 else 100.0
     utilization_pct = (total_allocated / float(available_capacity_kg) * 100.0) if float(available_capacity_kg) > 0 else 100.0
-    
-    # Generate Explanations
+
+    # -------------------------------------------------------------
+    # Binding Constraint Detection
+    # -------------------------------------------------------------
+    binding_constraints = []
+    if utilization_pct >= 99.5 and total_unfulfilled > 0.1:
+        binding_constraints.append("TOTAL_CAPACITY")
+    if len(commitment_shortfalls) > 0:
+        binding_constraints.append("B2B_MINIMUM_COMMITMENT_SHORTFALL")
+    elif b2b_req > 0 and sum(float(s.get('minimum_commitment_kg', 0)) for s in segments if s.get('channel')=='B2B') > 0:
+        binding_constraints.append("B2B_MINIMUM_COMMITMENT")
+    if total_unfulfilled <= 0.01:
+        binding_constraints.append("DEMAND_CEILING")
+
+    # -------------------------------------------------------------
+    # Strategy Explanation & Tradeoffs Generator
+    # -------------------------------------------------------------
+    tradeoffs = []
+    if strategy == "revenue":
+        strat_summary = "Revenue optimization prioritized segments strictly by unit contribution margin."
+        if b2b_req > 0:
+            tradeoffs.append("Higher allocation assigned to D2C high-margin segments over non-contract B2B volume.")
+    elif strategy == "fulfillment":
+        strat_summary = "Fulfillment strategy prioritized B2B SLAs and channel fulfillment weights to maximize total order completion."
+        tradeoffs.append("Allocated capacity to high-priority commitments even when unit margin was lower.")
+    else: # balanced
+        strat_summary = "Balanced strategy traded off contribution margin against B2B contract fulfillment weights."
+        tradeoffs.append("Maintained high B2B commitment reliability while preserving allocation for top-performing D2C markets.")
+
+    # Legacy explanations array for backwards compatibility
     explanations = []
     total_commit = sum(s.get('minimum_commitment_kg', 0) for s in segments if s.get('channel') == 'B2B')
     
@@ -174,7 +250,6 @@ def allocate_capacity(strategy, available_capacity_kg, segments):
         if r['allocated_kg'] > 0 and r['unfulfilled_kg'] > 0:
             explanations.append(f"Segment {r['segment_id']} ({r['region']} {r['channel']}) received partial capacity due to constraint limits.")
 
-    # Cap explanations
     explanations = list(dict.fromkeys(explanations))[:5]
 
     return {
@@ -190,5 +265,11 @@ def allocate_capacity(strategy, available_capacity_kg, segments):
         "d2c_fulfillment_pct": round(d2c_fulfillment, 2),
         "capacity_utilization_pct": round(utilization_pct, 2),
         "commitment_shortfalls": commitment_shortfalls,
+        "binding_constraints": binding_constraints,
+        "strategy_explanation": {
+            "summary": strat_summary,
+            "tradeoffs": tradeoffs
+        },
         "explanations": explanations
     }
+

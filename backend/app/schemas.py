@@ -54,3 +54,12 @@ class PlanRequest(BaseModel):
             }
         }
     )
+
+class CopilotChatRequest(BaseModel):
+    message: str
+    session_id: Optional[str] = "default_session"
+    strategy: Optional[str] = "balanced"
+    risk_mode: Optional[str] = "balanced"
+    target_period: Optional[str] = "2024-05"
+    current_scenario: Optional[Dict[str, Any]] = None
+

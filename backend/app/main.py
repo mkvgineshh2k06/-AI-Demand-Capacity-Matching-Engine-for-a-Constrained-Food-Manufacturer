@@ -18,8 +18,8 @@ app = FastAPI(
 # 1. Configured generic DEV CORS permitting local UI integrations
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Flexible environment rule for hackathon cross-Origin access
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

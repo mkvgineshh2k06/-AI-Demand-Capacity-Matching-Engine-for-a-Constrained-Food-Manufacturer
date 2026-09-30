@@ -52,3 +52,12 @@ backend/app/models/saved_models/*.joblib
 
 # Temp output files
 *.txt
+
+# Node modules & frontend builds
+node_modules/
+frontend/dist/
+frontend/node_modules/
+
+# Local Vector Store
+backend/data/chroma/
+
